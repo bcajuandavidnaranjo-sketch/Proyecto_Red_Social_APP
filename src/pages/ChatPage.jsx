@@ -1,7 +1,13 @@
 import { useState } from "react";
 
 export default function ChatPage() {
+  const [busquedaConversacion, setBusquedaConversacion] = useState("");
   const [mensajeTexto, setMensajeTexto] = useState("");
+  const [conversaciones] = useState([
+    { id: 1, nombre: "Jane Doe", ultimo: "Hola, ¿cómo estás?", hora: "10:30", avatar: "https://www.w3schools.com/w3images/avatar5.png", activa: true },
+    { id: 2, nombre: "Angie Jane", ultimo: "¿Viste el nuevo proyecto?", hora: "Ayer", avatar: "https://www.w3schools.com/w3images/avatar6.png", activa: false },
+    { id: 3, nombre: "John Doe", ultimo: "¡Claro! Quedó genial.", hora: "Ayer", avatar: "https://www.w3schools.com/w3images/avatar2.png", activa: false },
+  ]);
   const [mensajes, setMensajes] = useState([
     { remitente: "Jane Doe", hora: "10:28", texto: "¡Hola! ¿Cómo va el diseño?", esMio: false },
     { remitente: "Tú", hora: "10:30", texto: "Muy bien, casi terminado. ¿Te gustó la última versión?", esMio: true },
@@ -18,6 +24,12 @@ export default function ChatPage() {
     setMensajeTexto("");
   }
 
+  // Filtrado reactivo de conversaciones (Criterio 5.0)
+  const conversacionesFiltradas = conversaciones.filter((c) =>
+    c.nombre.toLowerCase().includes(busquedaConversacion.toLowerCase()) ||
+    c.ultimo.toLowerCase().includes(busquedaConversacion.toLowerCase())
+  );
+
   return (
     <div className="w3-container w3-content" style={{ maxWidth: 1200, marginTop: 80 }}>
       <div className="w3-row">
@@ -29,46 +41,35 @@ export default function ChatPage() {
                 <i className="fa fa-comments w3-margin-right"></i>Conversaciones
               </h4>
               <div className="w3-section">
-                <input className="w3-input w3-border w3-round" type="text" placeholder="Buscar mensajes..." />
+                <input
+                  className="w3-input w3-border w3-round"
+                  type="text"
+                  placeholder="🔍 Buscar contacto o mensaje..."
+                  value={busquedaConversacion}
+                  onChange={(e) => setBusquedaConversacion(e.target.value)}
+                />
               </div>
             </div>
             <ul className="w3-ul w3-hoverable">
-              <li className="w3-padding-16 w3-theme-l4">
-                <img
-                  src="https://www.w3schools.com/w3images/avatar5.png"
-                  className="w3-left w3-circle w3-margin-right"
-                  style={{ width: 50 }}
-                  alt="Jane Doe"
-                />
-                <span className="w3-large">Jane Doe</span>
-                <br />
-                <span className="w3-opacity">Hola, ¿cómo estás?</span>
-                <span className="w3-right w3-small w3-text-theme">10:30</span>
-              </li>
-              <li className="w3-padding-16">
-                <img
-                  src="https://www.w3schools.com/w3images/avatar6.png"
-                  className="w3-left w3-circle w3-margin-right"
-                  style={{ width: 50 }}
-                  alt="Angie Jane"
-                />
-                <span className="w3-large">Angie Jane</span>
-                <br />
-                <span className="w3-opacity">¿Viste el nuevo proyecto?</span>
-                <span className="w3-right w3-small w3-text-theme">Ayer</span>
-              </li>
-              <li className="w3-padding-16">
-                <img
-                  src="https://www.w3schools.com/w3images/avatar2.png"
-                  className="w3-left w3-circle w3-margin-right"
-                  style={{ width: 50 }}
-                  alt="John Doe"
-                />
-                <span className="w3-large">John Doe</span>
-                <br />
-                <span className="w3-opacity">¡Claro! Quedó genial.</span>
-                <span className="w3-right w3-small w3-text-theme">Ayer</span>
-              </li>
+              {conversacionesFiltradas.map((c) => (
+                <li key={c.id} className={`w3-padding-16 ${c.activa ? "w3-theme-l4" : ""}`}>
+                  <img
+                    src={c.avatar}
+                    className="w3-left w3-circle w3-margin-right"
+                    style={{ width: 50 }}
+                    alt={c.nombre}
+                  />
+                  <span className="w3-large">{c.nombre}</span>
+                  <br />
+                  <span className="w3-opacity">{c.ultimo}</span>
+                  <span className="w3-right w3-small w3-text-theme">{c.hora}</span>
+                </li>
+              ))}
+              {conversacionesFiltradas.length === 0 && (
+                <li className="w3-padding-16 w3-center w3-text-grey">
+                  No se encontraron conversaciones con "{busquedaConversacion}".
+                </li>
+              )}
             </ul>
           </div>
         </div>

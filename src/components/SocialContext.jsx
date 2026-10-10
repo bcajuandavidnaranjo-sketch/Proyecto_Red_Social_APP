@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { authService } from "../services/authService";
 
 const SocialContext = createContext(null);
 const CLAVE_ALMACENAMIENTO = "cavynet-posts-v2";
@@ -122,6 +123,7 @@ export function SocialProvider({ children }) {
   const [solicitudesAmistad, setSolicitudesAmistad] = useState(solicitudesAmistadIniciales);
   const [amigos, setAmigos] = useState([]);
   const [mostrarAlerta, setMostrarAlerta] = useState(true);
+  const [usuarioActivo, setUsuarioActivo] = useState(authService.obtenerUsuarioActual);
   const [autenticado, setAutenticado] = useState(() => {
     try {
       const sesion = localStorage.getItem("red_social_auth");
@@ -131,8 +133,13 @@ export function SocialProvider({ children }) {
     }
   });
 
-  function iniciarSesion() {
+  function iniciarSesion(datosUsuario = null) {
     setAutenticado(true);
+    if (datosUsuario) {
+      setUsuarioActivo(datosUsuario);
+    } else {
+      setUsuarioActivo(authService.obtenerUsuarioActual());
+    }
     try {
       localStorage.setItem("red_social_auth", "true");
     } catch {
@@ -141,12 +148,8 @@ export function SocialProvider({ children }) {
   }
 
   function cerrarSesion() {
+    authService.logout();
     setAutenticado(false);
-    try {
-      localStorage.setItem("red_social_auth", "false");
-    } catch {
-      // ignore
-    }
   }
 
   useEffect(() => {
@@ -297,7 +300,7 @@ export function SocialProvider({ children }) {
     <SocialContext.Provider
       value={{
         publicaciones,
-        usuarioActual,
+        usuarioActual: usuarioActivo,
         notificaciones: notificacionesIniciales,
         grupos: gruposUsuario,
         intereses: interesesUsuario,
@@ -322,7 +325,7 @@ export function SocialProvider({ children }) {
 
         // Alias retrocompatibles
         posts: publicaciones,
-        currentUser: usuarioActual,
+        currentUser: usuarioActivo,
         notifications: notificacionesIniciales,
         groups: gruposUsuario,
         interests: interesesUsuario,
